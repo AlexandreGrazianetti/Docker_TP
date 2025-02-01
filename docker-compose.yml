@@ -1,0 +1,38 @@
+services:
+  backend:
+    build: ./backend
+    container_name: backend_service
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: Country42!
+      MYSQL_DATABASE: country
+    volumes:
+      - ./data:/app/data
+    networks:
+      - my_network
+
+  db:
+    image: mysql:8
+    container_name: db_service
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: Country42!
+      MYSQL_DATABASE: country
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - my_network
+
+volumes:
+  db_data:
+
+
+networks:
+  my_network:
