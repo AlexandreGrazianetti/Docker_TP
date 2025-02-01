@@ -86,3 +86,15 @@ Explication du code :
     - Nombre d'habitants de la ville la plus peuplé =>
     - Nom de la ville la moins peuplé => ville_moins_peuplee VARCHAR(255) NOT NULL
     - Nombre d'habitants de la ville la plus moins => population_ville_moins BIGINT NOT NULL
+
+    En résumé, voici les grandes lignes de la logique métier :
+     - Connexion à la base de données MySQL pour interagir avec les données des pays.
+     - Opérations CRUD (création, lecture, mise à jour, suppression) sur les informations des pays.
+     - Validation et gestion des erreurs pour garantir l'intégrité des données et traiter les erreurs.
+     - Exposition via une API ou une interface backend pour permettre l'accès aux données.
+    
+Optimisation :
+
+    Enfin, nous pouvons optimiser le fichier grâce à quelques solutions importantes comme un "build multi-stage", ce qui permet de séparer les étapes de construction de l'application. Dans cette approche, les outils et dépendances nécessaires pour la construction (comme `pip`) sont installés dans une première étape, tandis que l'image finale ne contient que les fichiers nécessaires, réduisant ainsi la taille de l'image. Une autre optimisation consiste à utiliser des "images de base plus petites", telles que `python:3.11.9-alpine`, qui est beaucoup plus légère que les versions slim, ce qui permet de réduire davantage la taille de l'image. Cependant, il faut s'assurer que toutes les dépendances fonctionnent bien avec cette version minimale, car certaines peuvent nécessiter des bibliothèques système supplémentaires.
+
+    En outre, il est essentiel de "réduire le nombre de couches" en regroupant les commandes `RUN`, `COPY`, et autres dans une seule instruction. Cela diminue le nombre de métadonnées créées et optimise la taille de l'image. Une autre optimisation concerne l'"utilisation du cache Docker". En plaçant les commandes `COPY requirements.txt` avant d’ajouter d’autres fichiers, Docker peut mieux gérer le cache et éviter de réinstaller les dépendances à chaque modification du code, ce qui accélère la construction des images. Ces optimisations combinées permettent non seulement de réduire la taille de l'image, mais aussi d'améliorer les temps de construction et de déploiement.
