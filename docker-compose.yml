@@ -1,38 +1,55 @@
 services:
   backend:
-    build: ./backend
-    container_name: backend_service
+    build:
+      context: ./backend # Chemin vers le répertoire contenant le Dockerfile
+      dockerfile: Dockerfile # Nom du Dockerfile
+    container_name: backend_service # Nom du conteneur
     depends_on:
-      - db
+      - db # Le service backend dépend du service db
     environment:
-      MYSQL_HOST: db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: Country42!
-      MYSQL_DATABASE: country
+      MYSQL_HOST: db # Correspond au nom du service dans Docker Compose
+      MYSQL_PORT: 3306 # Port de MySQL
+      MYSQL_USER: user # Utilisateur MySQL
+      MYSQL_PASSWORD: Country42! # Mot de passe MySQL
+      MYSQL_DATABASE: country # Base de données à utiliser
     volumes:
-      - ./data:/app/data
+      - ./backend/data:/app/data # Volume pour persister les données (si nécessaire)
     networks:
-      - my_network
+      - my_network # Réseau Docker
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000" ] # Vérifie si l'application Flask est en cours d'exécution
+      interval: 10s # Intervalle entre les vérifications
+      timeout: 5s # Délai d'attente pour chaque vérification
+      retries: 5 # Nombre de tentatives avant de considérer le service comme non sain
+      start_period: 30s # Délai avant de commencer les vérifications
+    ports:
+      - "5000:5000" # Expose le port 5000
 
   db:
-    image: mysql:8
-    container_name: db_service
-    restart: always
+    image: mysql:8.4.4 # Image Docker pour MySQL
+    container_name: db_service # Nom du conteneur
+    restart: always # Redémarre le conteneur en cas d'échec
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_USER: user
-      MYSQL_PASSWORD: Country42!
-      MYSQL_DATABASE: country
+      MYSQL_ROOT_PASSWORD: country # Mot de passe pour l'utilisateur root
+      MYSQL_USER: user # Utilisateur MySQL
+      MYSQL_PASSWORD: Country42! # Mot de passe MySQL
+      MYSQL_DATABASE: country # Base de données à créer
     ports:
-      - "3306:3306"
+      - "3306:3306" # Expose le port 3306
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql # Volume pour persister les données de la base de données
     networks:
-      - my_network
+      - my_network # Réseau Docker
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u user --password=Country42!" ] # Vérifie si MySQL est en cours d'exécution
+      interval: 10s # Intervalle entre les vérifications
+      timeout: 5s # Délai d'attente pour chaque vérification
+      retries: 5 # Nombre de tentatives avant de considérer le service comme non sain
+      start_period: 30s # Délai avant de commencer les vérifications
 
 volumes:
   db_data:
-
+    # Définition du volume pour MySQL
 
 networks:
-  my_network:
+  my_network: # Définition du réseau Docker

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Pays</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .button {
+            padding: 5px 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button.delete {
+            background-color: #DC3545;
+        }
+
+        .button.logout {
+            background-color: #6C757D;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid black;
+            z-index: 1000;
+        }
+
+        .popup input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            margin: 10px 0;
+        }
+    </style>
+    <script>
+        // Ouverture de la pop-up pour suppression
+        function openDeletePopup() {
+            document.getElementById('deletePopup').style.display = 'block';
+        }
+
+        // Fermeture de la pop-up
+        function closeDeletePopup() {
+            document.getElementById('deletePopup').style.display = 'none';
+        }
+
+        // Suppression du pays avec AJAX
+        function supprimerPays() {
+            const nomPays = document.getElementById('nomPaysSupprimer').value;
+            if (nomPays === '') {
+                alert("Veuillez saisir le nom du pays à supprimer.");
+                return;
+            }
+
+            fetch(`/pays/${nomPays}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload(); // Recharge la page après suppression
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+
+        // Ajout d'un pays avec AJAX
+        function ajouterPays(event) {
+            event.preventDefault();
+
+            const data = {
+                pays: document.getElementById('paysNom').value,
+                nombre_habitants: document.getElementById('populationTotale').value,
+                capital: document.getElementById('capital').value,
+                ville_plus_peuple: document.getElementById('villePlusPeuplee').value,
+                nb_habitants_plus: document.getElementById('populationVillePlus').value,
+                ville_moins_peuple: document.getElementById('villeMoinsPeuplee').value,
+                nb_habitants_moins: document.getElementById('populationVilleMoins').value
+            };
+
+            fetch('/pays', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload(); // Recharge la page après ajout
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Liste des Pays</h1>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Population Totale</th>
+            <th>Capital</th>
+            <th>Ville la plus peuplée</th>
+            <th>Population Ville Plus</th>
+            <th>Ville la moins peuplée</th>
+            <th>Population Ville Moins</th>
+        </tr>
+        {% for pays in pays_liste %}
+        <tr>
+            <td>{{ pays.nom }}</td>
+            <td>{{ pays.nombre_habitants }}</td>
+            <td>{{ pays.capital }}</td>
+            <td>{{ pays.ville_plus_peuple }}</td>
+            <td>{{ pays.nb_habitants_plus }}</td>
+            <td>{{ pays.ville_moins_peuple }}</td>
+            <td>{{ pays.nb_habitants_moins }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Bouton Ajouter un pays -->
+    <h2>Ajouter un Pays</h2>
+    <form onsubmit="ajouterPays(event)">
+        <input type="text" id="paysNom" placeholder="Nom du pays" required><br>
+        <input type="number" id="populationTotale" placeholder="Population Totale" required><br>
+        <input type="text" id="capital" placeholder="Capital" required><br>
+        <input type="text" id="villePlusPeuplee" placeholder="Ville la plus peuplée" required><br>
+        <input type="number" id="populationVillePlus" placeholder="Population Ville Plus" required><br>
+        <input type="text" id="villeMoinsPeuplee" placeholder="Ville la moins peuplée" required><br>
+        <input type="number" id="populationVilleMoins" placeholder="Population Ville Moins" required><br>
+        <button class="button" type="submit">Ajouter</button>
+    </form>
+
+    <!-- Bouton Supprimer un pays -->
+    <button class="button delete" onclick="openDeletePopup()">Supprimer un Pays</button>
+
+    <!-- Pop-up de suppression -->
+    <div id="deletePopup" class="popup">
+        <h3>Supprimer un Pays</h3>
+        <input type="text" id="nomPaysSupprimer" placeholder="Nom du pays à supprimer">
+        <button class="button delete" onclick="supprimerPays()">Confirmer</button>
+        <button class="button" onclick="closeDeletePopup()">Annuler</button>
+    </div>
+
+    <!-- Bouton Déconnexion -->
+    <br><br>
+    <button class="button logout" onclick="window.location.href='/logout'">Déconnexion</button>
+</body>
+
+</html>
